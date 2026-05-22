@@ -132,51 +132,52 @@ A user can permanently delete documents they uploaded. Project Managers can dele
 - **FR-008**: System MUST automatically capture upload date/time, uploader name, file size, and file type (MIME type, up to 255 characters)
 - **FR-009**: System MUST display a progress indicator during file upload
 - **FR-010**: System MUST scan uploaded files for viruses and malware before storage using a simulated scanner service (placeholder interface for future real scanner integration). The simulation may randomly flag files for demonstration purposes.
-- **FR-011**: System MUST store files in a secure location outside web-accessible directories using GUID-based filenames
+- **FR-011**: System MUST store files in a secure location outside web-accessible directories using GUID-based filenames. No application-level encryption at rest is required; security relies on filesystem permissions and secure storage location.
 - **FR-012**: System MUST use the upload sequence: generate unique path → save file to disk → save metadata to database (prevents orphaned records)
 
 **Document Organization and Browsing**
 
-- **FR-013**: System MUST provide a "My Documents" view showing all documents uploaded by the current user
+- **FR-013**: System MUST provide a "My Documents" view showing all documents uploaded by the current user. When empty, display a friendly message ("No documents yet. Upload your first document!") with an Upload button.
 - **FR-014**: System MUST display document list with: title, category, upload date, file size, associated project
 - **FR-015**: System MUST allow sorting documents by: title, upload date, category, file size
 - **FR-016**: System MUST allow filtering documents by: category, associated project, date range
-- **FR-017**: System MUST provide a "Project Documents" view showing all documents associated with a specific project
+- **FR-017**: System MUST provide a "Project Documents" view showing all documents associated with a specific project. When empty, display a friendly message with an Upload button.
 - **FR-018**: System MUST allow all project team members to view and download project documents
 - **FR-019**: System MUST provide search across document title, description, tags, uploader name, and associated project
 - **FR-020**: System MUST return search results within 2 seconds
+- **FR-021**: System MUST provide a "Shared with Me" view showing all documents shared with the current user. When empty, display a friendly message explaining that shared documents will appear here.
 
 **Document Access and Management**
 
-- **FR-021**: System MUST allow users to download any document they have access to
-- **FR-022**: System MUST provide in-browser preview for PDF and image files
-- **FR-023**: System MUST allow document owners to edit metadata (title, description, category, tags)
-- **FR-024**: System MUST allow document owners to replace a document with an updated file version
-- **FR-025**: System MUST allow document owners to permanently delete their documents with confirmation
-- **FR-026**: System MUST allow Project Managers to delete any document in their projects
-- **FR-027**: System MUST prevent users from accessing, editing, or deleting documents they do not have permission for
+- **FR-022**: System MUST allow users to download any document they have access to
+- **FR-023**: System MUST provide in-browser preview for PDF and image files
+- **FR-024**: System MUST allow document owners to edit metadata (title, description, category, tags)
+- **FR-025**: System MUST allow document owners to replace a document with an updated file version
+- **FR-026**: System MUST allow document owners to permanently delete their documents with confirmation
+- **FR-027**: System MUST allow Project Managers to delete any document in their projects
+- **FR-028**: System MUST prevent users from accessing, editing, or deleting documents they do not have permission for
 
 **Document Sharing**
 
-- **FR-028**: System MUST allow document owners to share documents with specific users or teams
-- **FR-029**: System MUST send in-app notifications to users when a document is shared with them
-- **FR-030**: System MUST display shared documents in a "Shared with Me" section for recipients
-- **FR-031**: System MUST allow document owners to revoke sharing access
+- **FR-029**: System MUST allow document owners to share documents with specific users or teams
+- **FR-030**: System MUST send in-app notifications to users when a document is shared with them
+- **FR-031**: System MUST display shared documents in a "Shared with Me" section for recipients
+- **FR-032**: System MUST allow document owners to revoke sharing access
 
 **Integration with Existing Features**
 
-- **FR-032**: System MUST allow viewing and attaching documents from a task detail page
-- **FR-033**: System MUST allow uploading documents directly from a task detail page
-- **FR-034**: System MUST automatically associate documents uploaded from a task with the task's project
-- **FR-035**: System MUST display a "Recent Documents" widget on the dashboard showing the last 5 documents uploaded by the user
-- **FR-036**: System MUST include document count in dashboard summary cards
-- **FR-037**: System MUST notify users when a new document is added to one of their projects
+- **FR-033**: System MUST allow viewing and attaching documents from a task detail page
+- **FR-034**: System MUST allow uploading documents directly from a task detail page
+- **FR-035**: System MUST automatically associate documents uploaded from a task with the task's project
+- **FR-036**: System MUST display a "Recent Documents" widget on the dashboard showing the last 5 documents uploaded by the user
+- **FR-037**: System MUST include document count in dashboard summary cards
+- **FR-038**: System MUST notify users when a new document is added to one of their projects
 
 **Audit and Security**
 
-- **FR-038**: System MUST log all document activities (upload, download, share, delete, metadata edit) with timestamp, user, and action type
-- **FR-039**: System MUST enforce role-based access controls: Employees access own documents, Team Leads access team documents, Project Managers access project documents, Administrators access all documents
-- **FR-040**: System MUST prevent IDOR (Insecure Direct Object Reference) attacks by validating authorization on every document access
+- **FR-039**: System MUST log all document activities (upload, download, share, delete, metadata edit) with timestamp, user, and action type
+- **FR-040**: System MUST enforce role-based access controls: Employees access own documents, Team Leads access team documents, Project Managers access project documents, Administrators access all documents
+- **FR-041**: System MUST prevent IDOR (Insecure Direct Object Reference) attacks by validating authorization on every document access
 
 ### Key Entities
 
@@ -184,6 +185,13 @@ A user can permanently delete documents they uploaded. Project Managers can dele
 - **DocumentShare**: Tracks sharing relationships between documents and users. Key attributes: DocumentId (reference), UserId (reference), SharedBy (user reference), SharedDate, AccessLevel. Relationships: links Document to User with sharing permissions.
 - **DocumentAuditLog**: Records all document activities for compliance. Key attributes: DocumentId (reference), UserId (reference), ActionType (upload/download/share/delete/edit), Timestamp, Details. Relationships: references Document and User who performed the action.
 
+## Clarifications
+
+### Session 2026-05-22
+
+- Q: What empty state should document views display when no documents exist? → A: Friendly empty state with call-to-action (e.g., "No documents yet. Upload your first document!" with an Upload button).
+- Q: Should document files be encrypted at rest on disk? → A: No encryption at rest. Rely on filesystem permissions and secure storage location outside web-accessible directories.
+- Q: What scalability targets should the system be designed for? → A: Small-scale training system — 100 users, 10,000 documents, 50 concurrent uploads.
 ## Assumptions
 
 - Users have basic file management skills (selecting files, understanding categories)
@@ -214,6 +222,6 @@ A user can permanently delete documents they uploaded. Project Managers can dele
 - **SC-003**: 95% of document uploads complete successfully on first attempt for files under 25 MB
 - **SC-004**: Users can share a document with a team member and the recipient receives the notification within 10 seconds
 - **SC-005**: Unauthorized access attempts to documents are blocked 100% of the time
-- **SC-006**: Document list pages load within 2 seconds for users with up to 500 documents
+- **SC-006**: Document list pages load within 2 seconds for users with up to 500 documents. System MUST be designed for small-scale training environment: 100 users, 10,000 total documents, 50 concurrent uploads.
 - **SC-007**: All document activities are captured in audit logs with 100% accuracy
 - **SC-008**: Users can reduce time spent locating documents by 50% compared to previous scattered storage methods
